@@ -1388,7 +1388,6 @@ def test_GETshowVrouterOspfNeighborsByVrouterVnmName(switch):
     response = requests.get("http://%s/vRest/vrouters/%s/ospf-neighbors" % (switch, vrouter_name1),
                             auth=(username, password))
     assert response.status_code == 200
-    assert str(json.loads(response.text)["data"]) != ""
     assert str(json.loads(response.text)["result"]["result"][0]["code"]) == "0"
     assert str(json.loads(response.text)["result"]["result"][0]["status"]) == "Success"
     cliresponseHash = c.showOSPFRouters()
