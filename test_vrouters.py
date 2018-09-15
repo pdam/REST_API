@@ -1470,13 +1470,8 @@ def test_GETshowVrouterPimInterfacesByVrouterVnmName(switch, vrouter_name, vnet_
     response = requests.get("http://%s/vRest/vrouters/%s/pim-interfaces" % (switch, vrouter_name),
                             auth=(username, password))
     assert response.status_code == 200
-    assert str(json.loads(response.text)["data"]) != ""
     assert str(json.loads(response.text)["result"]["result"][0]["code"]) == "0"
     assert str(json.loads(response.text)["result"]["result"][0]["status"]) == "Success"
-    cliresponseHash = c.showPIMVRoutersInterfaces()
-    jsonResponseDat = json.loads(response.text)["data"]
-    pprint(jsonResponseDat)
-    pprint(cliresponseHash)
     c.deleteVnetAssociatedWithVrouter(vnet_name)
     c.close()
 
@@ -1558,13 +1553,8 @@ def test_GETshowVrouterPimJoinsByVrouterVnmName(switch, vrouter_name, vnet_name,
         switch, vrouter_name))
     response = requests.get("http://%s/vRest/vrouters/%s/pim-joins" % (switch, vrouter_name), auth=(username, password))
     assert response.status_code == 200
-    assert str(json.loads(response.text)["data"]) != ""
     assert str(json.loads(response.text)["result"]["result"][0]["code"]) == "0"
     assert str(json.loads(response.text)["result"]["result"][0]["status"]) == "Success"
-    cliresponseHash = c.show()
-    jsonResponseDat = json.loads(response.text)["data"]
-    pprint(jsonResponseDat)
-    pprint(cliresponseHash)
     c.deleteVnetAssociatedWithVrouter(vnet_name)
     c.close()
 
