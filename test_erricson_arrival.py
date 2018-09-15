@@ -169,11 +169,48 @@ def test_User_Roles_Handling(switch):
 
 
 def test_TACACS_Administration(switch):
-    pass
+    name = "name-%d"%(random.randint(2,100000))
+    payload ={
+          "name": name,
+          "scope": "local",
+          "server": "1.2.3.4",
+          "port": random.randint(2,1000),
+          "secret": "secret"
+    }
+    response = requests.post("http://%s/vRest/aaa-tacacs"%(switch) , auth=(username , password), data =json.dumps(payload))
+    print  response.json()
+    assert str(response.status_code) == "201"
+    assert str(json.loads(response.text)["result"]["result"][0]["code"])  == "0"
+    assert str(json.loads(response.text)["result"]["result"][0]["status"]) == "Success"
+    response = requests.delete("http://%s/vRest/aaa-tacacs/%s"%(switch,name) , auth=(username , password))
+    assert str(response.status_code) == "200"
+    assert str(json.loads(response.text)["result"]["result"][0]["code"])  == "0"
+    assert str(json.loads(response.text)["result"]["result"][0]["status"]) == "Success"
+
 
 
 def test_TACACS_List(switch):
-    pass
+    name = "name-%d"%(random.randint(2,100000))
+    payload ={
+          "name": name,
+          "scope": "local",
+          "server": "1.2.3.4",
+          "port": random.randint(2,1000),
+          "secret": "secret"
+    }
+    response = requests.post("http://%s/vRest/aaa-tacacs"%(switch) , auth=(username , password), data =json.dumps(payload))
+    print  response.json()
+    assert str(response.status_code) == "201"
+    assert str(json.loads(response.text)["result"]["result"][0]["code"])  == "0"
+    assert str(json.loads(response.text)["result"]["result"][0]["status"]) == "Success"
+    ##Check now
+    response = requests.get("http://%s/vRest/aaa-tacacs/name"%(switch) , auth=(username , password))
+    print  response.json()
+    assert str(response.status_code) == "200"
+    assert str(json.loads(response.text)["result"]["result"][0]["code"])  == "0"
+    assert str(json.loads(response.text)["result"]["result"][0]["status"]) == "Success"
+
+
 
 
 def test_Reboot(switch):
@@ -196,9 +233,25 @@ def test_Management_IP_address(switch):
     assert rest_mgmt_ip == mgmt_ip
 
 
-@pytest.mark.skip(reason=None)
+
 def test_Export_import_configuration(switch):
-    pass
+    payload ={
+        "export-file": "conf.tgz"
+    }
+    response = requests.post("http://%s/vRest/switch-configs/export"%(switch) , auth=(username , password), data =json.dumps(payload))
+    print  response.json()
+    assert str(response.status_code) == "200"
+    assert str(json.loads(response.text)["result"]["result"][0]["code"])  == "0"
+    assert str(json.loads(response.text)["result"]["result"][0]["status"]) == "Success"
+    ##Check now
+    response = requests.get("http://%s/vRest/switch-configs"%(switch) , auth=(username , password))
+    print  response.json()
+    assert str(response.status_code) == "200"
+    assert str(json.loads(response.text)["result"]["result"][0]["code"])  == "0"
+    assert str(json.loads(response.text)["result"]["result"][0]["status"]) == "Success"
+    assert "conf.tgz" in json.loads(response.text)["data"][0]["export-file"]
+
+
 
 
 @pytest.mark.skip(reason=None)
@@ -211,19 +264,39 @@ def test_show_Running_Configuration(switch):
     pass
 
 
-@pytest.mark.skip(reason=None)
+
 def test_Admin_Syslog(switch):
-    pass
+    response = requests.post("http://%s/vRest/admin-syslogs" % (switch), auth=(username, password), data=json.dumps(
+            {'message-format': 'structured', 'scope': 'local', 'host': '1.2.3.4', 'name': 'name', 'port': 512 }))
+    print response.json()
+    assert str(response.status_code) == "201"
+    assert str(json.loads(response.text)["result"]["result"][0]["code"]) == "0"
+    assert str(json.loads(response.text)["result"]["result"][0]["status"]) == "Success"
+    response = requests.delete("http://%s/vRest/admin-syslogs/name" % (switch), auth=(username, password))
+    print response.json()
+    assert str(response.status_code) == "200"
+    assert str(json.loads(response.text)["result"]["result"][0]["code"]) == "0"
+    assert str(json.loads(response.text)["result"]["result"][0]["status"]) == "Success"
 
 
-@pytest.mark.skip(reason=None)
+
 def test_Log_events(switch):
-    pass
+    response = requests.get("http://%s/vRest/log-events" % (switch), auth=(username, password))
+    print response.json()
+    assert str(response.status_code) == "200"
+    assert str(json.loads(response.text)["result"]["result"][0]["code"]) == "0"
+    assert str(json.loads(response.text)["result"]["result"][0]["status"]) == "Success"
+    assert str(json.loads(response.text)["data"]) !=  ""
 
 
-@pytest.mark.skip(reason=None)
+
 def test_Admin_Services(switch):
-    pass
+    response = requests.get("http://%s/vRest/admin-services" % (switch), auth=(username, password))
+    print response.json()
+    assert str(response.status_code) == "200"
+    assert str(json.loads(response.text)["result"]["result"][0]["code"]) == "0"
+    assert str(json.loads(response.text)["result"]["result"][0]["status"]) == "Success"
+    assert json.loads(response.text)["data"][0]["web"] == True
 
 
 def test_port_enable_disable(switch):
@@ -344,9 +417,7 @@ def test_port_statistics(switch):
     assert plistRest == plist
 
 
-@pytest.mark.skip(reason=None)
-def test_40G_fan_out(switch):
-    pass
+
 
 
 def test_Display_all_VLANs(switch):
@@ -435,9 +506,7 @@ def test_POSTcreateVlan(switch, id, scope, ports):
     assert cliCreated[0]['description'] == str(description)
 
 
-@pytest.mark.skip(reason=None)
-def test_Assign_ports(switch):
-    pass
+
 
 
 testdata = [
@@ -460,14 +529,6 @@ def test_DELETEVlan(switch, id):
     assert (len([x for x in c.show() if x['id'] == str(id)])) == 0
 
 
-@pytest.mark.skip(reason=None)
-def test_Delete_ports(switch):
-    pass
-
-
-@pytest.mark.skip(reason=None)
-def test_Update_VLAN(switch):
-    pass
 
 
 def test_show_L2_tables(switch):
@@ -485,12 +546,17 @@ def test_show_L2_tables(switch):
     assert plistRest == plist
 
 
-@pytest.mark.skip(reason=None)
+
 def test_Flush_L2_table(switch):
-    pass
+    response = requests.post("http://%s/vRest/l2-tables/flush" % switch, auth=(username, password),
+                            data=json.dumps({}))
+    pprint(response.json())
+    assert response.status_code == 200
+    assert str(json.loads(response.text)["result"]["result"][0]["code"]) == "0"
+    assert str(json.loads(response.text)["result"]["result"][0]["status"]) == "Success"
 
 
-@pytest.mark.skip(reason=None)
+
 def test_Update_L2_setting(switch):
     c = l2_setting(switch)
     plistbefore = [x['aging-time(s)'] for x in c.show()]
@@ -584,39 +650,35 @@ def test_Modify_LAG_mode(switch):
     pass
 
 
-@pytest.mark.skip(reason=None)
+
 def test_set_LACP_system_priority(switch):
-    pass
+    payload = {
+    "enable": 'false',
+    "system-priority": 10
+    }
+    response = requests.put("http://%s/vRest/lacp" % (switch), auth=(username, password), data=json.dumps(payload))
+    pprint("=========JSON  OUTOUT =============")
+    pprint(response.json())
+    pprint("=========END  OF  JSON  OUTOUT =============")
+    assert str(response.status_code) == "200"
+    assert str(json.loads(response.text)["result"]["result"][0]["code"]) == "0"
+    assert str(json.loads(response.text)["result"]["result"][0]["status"]) == "Success"
 
 
-@pytest.mark.skip(reason=None)
-def test_Timeout(switch):
-    pass
 
 
-@pytest.mark.skip(reason=None)
-def test_Fallback(switch):
-    pass
 
-
-@pytest.mark.skip(reason=None)
-def test_show_LAGs(switch):
-    pass
-
-
-@pytest.mark.skip(reason=None)
 def test_show_LACP_for_ports(switch):
-    pass
+    response = requests.get("http://%s/vRest/lacp-port-stats-settings" % (switch), auth=(username, password))
+    pprint("=========JSON  OUTOUT =============")
+    pprint(response.json())
+    pprint("=========END  OF  JSON  OUTOUT =============")
+    assert str(response.status_code) == "200"
+    assert str(json.loads(response.text)["result"]["result"][0]["code"]) == "0"
+    assert str(json.loads(response.text)["result"]["result"][0]["status"]) == "Success"
+    assert str(json.loads(response.text)["data"]) != ""
 
 
-@pytest.mark.skip(reason=None)
-def test_show_LACP_counters(switch):
-    pass
-
-
-@pytest.mark.skip(reason=None)
-def test_LLDP_enable_disable(switch):
-    pass
 
 
 def test_show_LLDP_port(switch):
@@ -658,9 +720,6 @@ def test_show_LLDP_ports(switch):
     assert plistRest == plist
 
 
-@pytest.mark.skip(reason=None)
-def test_show_LLDP_ports_true_false(switch):
-    pass
 
 
 def test_set_IGMP_snooping(switch):
@@ -690,29 +749,16 @@ def test_set_IGMP_snooping(switch):
     assert plistRest == plistbefore
 
 
-@pytest.mark.skip(reason=None)
-def test_Enable(switch):
-    pass
 
 
-@pytest.mark.skip(reason=None)
-def test_Configure_BPDU(switch):
-    pass
 
+def test_STP(switch):
+    response = requests.get("http://%s/vRest/stp" % (switch), auth=(username, password))
+    pprint(response.json())
+    assert response.status_code == 200
+    assert str(json.loads(response.text)["result"]["result"][0]["code"]) == "0"
+    assert str(json.loads(response.text)["result"]["result"][0]["status"]) == "Success"
 
-@pytest.mark.skip(reason=None)
-def test_Bridge_priority(switch):
-    pass
-
-
-@pytest.mark.skip(reason=None)
-def test_Time_Delay(switch):
-    pass
-
-
-@pytest.mark.skip(reason=None)
-def test_sTP_States(switch):
-    pass
 
 
 testdata = [
@@ -868,59 +914,70 @@ def test_Vflow_delete(switch, name, vlan):
     assert str(json.loads(response.text)["result"]["result"][0]["status"]) == "Success"
 
 
-@pytest.mark.skip(reason=None)
+
 def test_Vflow_stats_settings_show(switch):
-    pass
+    payload = {
+          "enable": "false",
+          "interval": 1,
+          "disk-space": 10
+    }
+    response = requests.get("http://%s/vRest/vflow-stats-settings" % (switch), auth=(username, password)
+                               )
+    assert response.status_code == 200
+    assert str(json.loads(response.text)["result"]["result"][0]["code"]) == "0"
+    assert str(json.loads(response.text)["result"]["result"][0]["status"]) == "Success"
 
 
-@pytest.mark.skip(reason=None)
+
 def test_Vflow_stats_settings_modify(switch):
-    pass
+    payload = {
+          "enable": "false",
+          "interval": 1,
+          "disk-space": 10
+    }
+    response = requests.put("http://%s/vRest/vflow-stats-settings" % (switch), auth=(username, password), data=json.dumps(payload)
+                               )
+    assert response.status_code == 200
+    assert str(json.loads(response.text)["result"]["result"][0]["code"]) == "0"
+    assert str(json.loads(response.text)["result"]["result"][0]["status"]) == "Success"
 
 
-@pytest.mark.skip(reason=None)
+
 def test_Vflow_stats_show(switch):
-    pass
+    response = requests.get("http://%s/vRest/vflow-stats" % (switch), auth=(username, password)
+                               )
+    assert response.status_code == 200
+    assert str(json.loads(response.text)["result"]["result"][0]["code"]) == "0"
+    assert str(json.loads(response.text)["result"]["result"][0]["status"]) == "Success"
 
 
-@pytest.mark.skip(reason=None)
+
 def test_set_mirroring(switch):
-    pass
+    payload = {
+      "name": "mirror",
+      "out-port": "10",
+      "in-port": "11"
+    }
+    logging.info("testing POST  for vflow creation ")
+    response = requests.post("http://%s/vRest/mirrors" % (switch), auth=(username, password),
+                             data=json.dumps(payload))
+    assert response.status_code == 201
+    assert str(json.loads(response.text)["result"]["result"][0]["code"]) == "0"
+    assert str(json.loads(response.text)["result"]["result"][0]["status"]) == "Success"
+
+    response = requests.delete("http://%s/vRest/mirrors/mirror" % (switch), auth=(username, password)
+                               )
+    assert response.status_code == 200
+    assert str(json.loads(response.text)["result"]["result"][0]["code"]) == "0"
+    assert str(json.loads(response.text)["result"]["result"][0]["status"]) == "Success"
 
 
-@pytest.mark.skip(reason=None)
+
 def test_Display_mirroring(switch):
     pass
 
 
-@pytest.mark.skip(reason=None)
-def test_Update_mirroring(switch):
-    pass
 
-
-@pytest.mark.skip(reason=None)
-def test_Remove_mirroring(switch):
-    pass
-
-
-@pytest.mark.skip(reason=None)
-def test_Define_delete_VNET(switch):
-    pass
-
-
-@pytest.mark.skip(reason=None)
-def test_Define_delete_VNET_with_VRG(switch):
-    pass
-
-
-@pytest.mark.skip(reason=None)
-def test_Modify_VNET_to_add_VLAN(switch):
-    pass
-
-
-@pytest.mark.skip(reason=None)
-def test_Modify_VNET_to_add_restricted_VLAN(switch):
-    pass
 
 
 @pytest.mark.skip(reason=None)
