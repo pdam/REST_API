@@ -110,7 +110,7 @@ def test_set_time_zone(switch, timezone):
 
 
 testdata = [
-    ("0.in.pool.ntp.org")
+    ("ntp.ubuntu.com")
 ]
 
 
