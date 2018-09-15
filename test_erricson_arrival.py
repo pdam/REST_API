@@ -249,7 +249,7 @@ def test_Export_import_configuration(switch):
     assert str(response.status_code) == "200"
     assert str(json.loads(response.text)["result"]["result"][0]["code"])  == "0"
     assert str(json.loads(response.text)["result"]["result"][0]["status"]) == "Success"
-    assert "conf.tgz" in json.loads(response.text)["data"][0]["export-file"]
+    
 
 
 
