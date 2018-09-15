@@ -204,7 +204,7 @@ def test_TACACS_List(switch):
     assert str(json.loads(response.text)["result"]["result"][0]["code"])  == "0"
     assert str(json.loads(response.text)["result"]["result"][0]["status"]) == "Success"
     ##Check now
-    response = requests.get("http://%s/vRest/aaa-tacacs/name"%(switch) , auth=(username , password))
+    response = requests.get("http://%s/vRest/aaa-tacacs/%s"%(switch,name) , auth=(username , password))
     print  response.json()
     assert str(response.status_code) == "200"
     assert str(json.loads(response.text)["result"]["result"][0]["code"])  == "0"
