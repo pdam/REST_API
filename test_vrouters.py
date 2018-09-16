@@ -1391,9 +1391,6 @@ def test_GETshowVrouterOspfNeighborsByVrouterVnmName(switch):
     assert str(json.loads(response.text)["result"]["result"][0]["code"]) == "0"
     assert str(json.loads(response.text)["result"]["result"][0]["status"]) == "Success"
     cliresponseHash = c.showOSPFRouters()
-    jsonResponseDat = json.loads(response.text)["data"]
-    pprint(jsonResponseDat)
-    pprint(cliresponseHash)
     c.deleteVnetAssociatedWithVrouter(vnet_name1)
     c.deleteVnetAssociatedWithVrouter(vnet_name2)
     c.close()
